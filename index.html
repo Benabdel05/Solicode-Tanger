@@ -1,0 +1,603 @@
+<!DOCTYPE html>
+<html lang="fr" dir="ltr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Chatbot SOLICODE Tanger</title>
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Arabic:wght@300;400;600&family=Syne:wght@400;600;800&display=swap" rel="stylesheet">
+
+  <style>
+    :root {
+      --primary: #2563eb;
+      --primary-dark: #1d4ed8;
+      --primary-light: #dbeafe;
+      --bg: #f8fafc;
+      --white: #ffffff;
+      --border: #e2e8f0;
+      --text: #1e293b;
+      --bot-bg: #e2e8f0;
+      --shadow: 0 10px 40px rgba(0,0,0,0.25);
+    }
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      background: linear-gradient(135deg, #0f172a, #1e293b);
+      min-height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      padding: 20px;
+      font-family: 'Syne', 'IBM Plex Sans Arabic', Arial, sans-serif;
+    }
+
+    .chat-container {
+      width: 100%;
+      max-width: 870px;
+      height: 90vh;
+      background: var(--white);
+      border-radius: 20px;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+      box-shadow: var(--shadow);
+    }
+
+    /* ── HEADER ── */
+    .chat-header {
+      background: var(--primary);
+      color: white;
+      padding: 16px 20px 12px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .chat-header h1 {
+      font-size: 22px;
+      font-weight: 800;
+      letter-spacing: 0.5px;
+    }
+
+    .chat-header p {
+      font-size: 13px;
+      opacity: 0.85;
+    }
+
+    /* ── LANGUAGE SWITCHER ── */
+    .lang-switcher {
+      display: flex;
+      gap: 6px;
+      flex-wrap: wrap;
+      justify-content: center;
+      padding: 8px 16px;
+      background: rgba(255,255,255,0.1);
+      border-radius: 10px;
+    }
+
+    .lang-btn {
+      padding: 5px 11px;
+      border: 1.5px solid rgba(255,255,255,0.4);
+      border-radius: 20px;
+      background: transparent;
+      color: white;
+      font-size: 12px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      font-family: inherit;
+    }
+
+    .lang-btn:hover {
+      background: rgba(255,255,255,0.2);
+    }
+
+    .lang-btn.active {
+      background: white;
+      color: var(--primary);
+      border-color: white;
+    }
+
+    /* Tifinagh script toggle inside Tamazight */
+    .script-toggle {
+      display: flex;
+      gap: 4px;
+      align-items: center;
+      padding: 4px 8px;
+      background: rgba(255,255,255,0.15);
+      border-radius: 20px;
+      font-size: 11px;
+      color: white;
+    }
+
+    .script-toggle button {
+      background: none;
+      border: none;
+      color: rgba(255,255,255,0.7);
+      cursor: pointer;
+      font-size: 11px;
+      padding: 2px 5px;
+      border-radius: 10px;
+      transition: all 0.2s;
+    }
+
+    .script-toggle button.active {
+      background: white;
+      color: var(--primary);
+    }
+
+    /* ── CHAT BOX ── */
+    .chat-box {
+      flex: 1;
+      padding: 20px;
+      overflow-y: auto;
+      background: var(--bg);
+      scroll-behavior: smooth;
+    }
+
+    .message {
+      margin-bottom: 14px;
+      padding: 13px 16px;
+      border-radius: 14px;
+      max-width: 85%;
+      line-height: 1.65;
+      font-size: 14.5px;
+      animation: fadeIn 0.3s ease;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(8px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+
+    .bot {
+      background: var(--bot-bg);
+      color: var(--text);
+    }
+
+    .user {
+      background: var(--primary);
+      color: white;
+      margin-left: auto;
+    }
+
+    .message ul {
+      margin-left: 20px;
+      margin-top: 8px;
+    }
+
+    .message li {
+      margin-bottom: 4px;
+    }
+
+    /* RTL support for Tifinagh — no RTL needed (Tifinagh is LTR) */
+    .rtl-text {
+      direction: rtl;
+      text-align: right;
+    }
+
+    /* ── QUICK BUTTONS ── */
+    .quick-buttons {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      padding: 12px 16px;
+      background: #f1f5f9;
+      border-top: 1px solid var(--border);
+    }
+
+    .quick-buttons button {
+      padding: 9px 13px;
+      border: none;
+      background: var(--bot-bg);
+      border-radius: 8px;
+      cursor: pointer;
+      font-size: 13px;
+      font-family: inherit;
+      color: var(--text);
+      transition: background 0.2s;
+    }
+
+    .quick-buttons button:hover {
+      background: #cbd5e1;
+    }
+
+    /* ── INPUT AREA ── */
+    .input-area {
+      display: flex;
+      padding: 12px 16px;
+      border-top: 1px solid var(--border);
+      background: white;
+      gap: 10px;
+    }
+
+    .input-area input {
+      flex: 1;
+      padding: 13px 16px;
+      border: 1.5px solid #ccc;
+      border-radius: 10px;
+      outline: none;
+      font-size: 15px;
+      font-family: inherit;
+      color: var(--text);
+      transition: border-color 0.2s;
+    }
+
+    .input-area input:focus {
+      border-color: var(--primary);
+    }
+
+    .input-area button {
+      padding: 13px 20px;
+      border: none;
+      background: var(--primary);
+      color: white;
+      border-radius: 10px;
+      cursor: pointer;
+      font-size: 15px;
+      font-family: inherit;
+      font-weight: 600;
+      transition: background 0.2s;
+      white-space: nowrap;
+    }
+
+    .input-area button:hover {
+      background: var(--primary-dark);
+    }
+
+    /* Tifinagh font support */
+    @font-face {
+      font-family: 'TifinaghFallback';
+      src: local('Noto Sans Tifinagh'), local('Code2000');
+    }
+
+    .tifinagh {
+      font-family: 'Noto Sans Tifinagh', 'TifinaghFallback', serif;
+      font-size: 1.05em;
+    }
+
+    @media (max-width: 768px) {
+      .chat-container { height: 95vh; }
+      .lang-btn { font-size: 11px; padding: 4px 9px; }
+    }
+  </style>
+</head>
+
+<body>
+
+<div class="chat-container">
+
+  <!-- HEADER -->
+  <div class="chat-header">
+    <h1>Chatbot SOLICODE Tanger</h1>
+    <p id="headerSubtitle">Assistant intelligent de formation</p>
+
+    <!-- Language switcher -->
+    <div class="lang-switcher" id="langSwitcher">
+      <button class="lang-btn active" onclick="setLang('fr')">🇫🇷 Français</button>
+      <button class="lang-btn" onclick="setLang('en')">🇬🇧 English</button>
+      <button class="lang-btn" onclick="setLang('es')">🇪🇸 Español</button>
+      <button class="lang-btn" onclick="setLang('da')">🇲🇦 Darija</button>
+      <button class="lang-btn" onclick="setLang('tz')">ⴰⵎⴰⵣⵉⵖ</button>
+    </div>
+
+    <!-- Tifinagh/Latin toggle (hidden by default, shown when Tamazight is active) -->
+    <div class="script-toggle" id="scriptToggle" style="display:none;">
+      <span>Script :</span>
+      <button id="btnTifinagh" class="active" onclick="setScript('tifinagh')">ⴰⵙⵉⵏⴰⴳ</button>
+      <button id="btnLatin" onclick="setScript('latin')">Latin</button>
+    </div>
+  </div>
+
+  <!-- CHAT BOX -->
+  <div class="chat-box" id="chatBox"></div>
+
+  <!-- QUICK BUTTONS -->
+  <div class="quick-buttons" id="quickButtons"></div>
+
+  <!-- INPUT -->
+  <div class="input-area">
+    <input type="text" id="userInput" placeholder="Posez votre question...">
+    <button id="sendBtn" onclick="sendMessage()">Envoyer</button>
+  </div>
+
+</div>
+
+<script>
+// ═══════════════════════════════════════════════
+//  TRANSLATIONS OBJECT
+// ═══════════════════════════════════════════════
+
+const T = {
+
+  /* ──────────── FRANÇAIS ──────────── */
+  fr: {
+    subtitle: "Assistant intelligent de formation",
+    placeholder: "Posez votre question...",
+    send: "Envoyer",
+    welcome: `Bonjour 👋<br><br>Je suis le chatbot de <b>SOLICODE Tanger</b>.<br><br>Vous pouvez me poser des questions sur :<ul><li>Présentation</li><li>Développeur Web</li><li>Développeur Mobile</li><li>Conditions d'accès</li><li>Certification</li><li>Contact</li></ul>`,
+    unknown: `Désolé 😅<br><br>Je ne comprends pas encore cette question.<br>Essayez : Présentation, Web, Mobile, Conditions, Certification ou Contact.`,
+    buttons: ["Présentation","Développeur Web","Développeur Mobile","Conditions","Certification","Contact"],
+    keywords: {
+      presentation: ["présentation","solicode"],
+      web: ["web","développeur web"],
+      mobile: ["mobile","développeur mobile"],
+      conditions: ["condition"],
+      certification: ["certification","diplôme"],
+      contact: ["contact","adresse"]
+    },
+    responses: {
+      presentation: `<b>Présentation de SOLICODE Tanger</b><br><br>SOLICODE est un centre de formation solidaire et inclusif, ouvert aux jeunes motivés et intéressés par les métiers du Développement Web et Mobile.<br><br>La formation est axée sur :<ul><li>Technique</li><li>Soft-skills</li><li>Entrepreneuriat</li><li>Employabilité</li></ul>`,
+      web: `<b>Filière Développeur Web</b><br><br>Cette formation permet d'apprendre :<ul><li>HTML / CSS</li><li>JavaScript</li><li>PHP et MySQL</li><li>Frameworks modernes</li><li>Création de sites et applications web</li></ul>`,
+      mobile: `<b>Filière Développeur Mobile</b><br><br>Cette formation permet de créer des applications mobiles avec :<ul><li>Flutter</li><li>Dart</li><li>Firebase</li><li>UI/UX Mobile</li><li>Publication d'applications</li></ul>`,
+      conditions: `<b>Conditions d'accès</b><br><br>Pour intégrer SOLICODE :<ul><li>Être motivé</li><li>Avoir un niveau scolaire acceptable</li><li>Réussir les tests de sélection</li><li>Avoir un intérêt pour le digital</li></ul>`,
+      certification: `<b>Certification</b><br><br>À la fin de la formation, les apprenants obtiennent une certification professionnelle valorisant leurs compétences techniques et professionnelles.`,
+      contact: `<b>Contact SOLICODE Tanger</b><br><br>🌐 Site web : www.solicode.co<br>📍 Ville : Tanger<br>📧 Contact : contact@solicode.co`
+    }
+  },
+
+  /* ──────────── ENGLISH ──────────── */
+  en: {
+    subtitle: "Intelligent training assistant",
+    placeholder: "Ask your question...",
+    send: "Send",
+    welcome: `Hello 👋<br><br>I am the <b>SOLICODE Tanger</b> chatbot.<br><br>You can ask me about:<ul><li>Presentation</li><li>Web Developer</li><li>Mobile Developer</li><li>Admission conditions</li><li>Certification</li><li>Contact</li></ul>`,
+    unknown: `Sorry 😅<br><br>I don't understand that question yet.<br>Try: Presentation, Web, Mobile, Conditions, Certification or Contact.`,
+    buttons: ["Presentation","Web Developer","Mobile Developer","Conditions","Certification","Contact"],
+    keywords: {
+      presentation: ["presentation","solicode","about"],
+      web: ["web","web developer"],
+      mobile: ["mobile","mobile developer"],
+      conditions: ["condition","admission","access"],
+      certification: ["certification","diploma","certificate"],
+      contact: ["contact","address","email"]
+    },
+    responses: {
+      presentation: `<b>About SOLICODE Tanger</b><br><br>SOLICODE is a solidarity-based and inclusive training center, open to motivated young people interested in Web and Mobile Development careers.<br><br>Training focuses on:<ul><li>Technical skills</li><li>Soft skills</li><li>Entrepreneurship</li><li>Employability</li></ul>`,
+      web: `<b>Web Developer Track</b><br><br>This training covers:<ul><li>HTML / CSS</li><li>JavaScript</li><li>PHP and MySQL</li><li>Modern frameworks</li><li>Web application development</li></ul>`,
+      mobile: `<b>Mobile Developer Track</b><br><br>This training enables you to build mobile apps with:<ul><li>Flutter</li><li>Dart</li><li>Firebase</li><li>Mobile UI/UX</li><li>App publishing</li></ul>`,
+      conditions: `<b>Admission Conditions</b><br><br>To join SOLICODE:<ul><li>Be motivated</li><li>Have an acceptable academic level</li><li>Pass the selection tests</li><li>Have an interest in digital technology</li></ul>`,
+      certification: `<b>Certification</b><br><br>At the end of training, learners receive a professional certification validating their technical and professional skills.`,
+      contact: `<b>Contact SOLICODE Tanger</b><br><br>🌐 Website: www.solicode.co<br>📍 City: Tanger<br>📧 Email: contact@solicode.co`
+    }
+  },
+
+  /* ──────────── ESPAÑOL ──────────── */
+  es: {
+    subtitle: "Asistente inteligente de formación",
+    placeholder: "Haz tu pregunta...",
+    send: "Enviar",
+    welcome: `Hola 👋<br><br>Soy el chatbot de <b>SOLICODE Tánger</b>.<br><br>Puedes preguntarme sobre:<ul><li>Presentación</li><li>Desarrollador Web</li><li>Desarrollador Móvil</li><li>Condiciones de acceso</li><li>Certificación</li><li>Contacto</li></ul>`,
+    unknown: `Lo siento 😅<br><br>Aún no entiendo esa pregunta.<br>Prueba: Presentación, Web, Móvil, Condiciones, Certificación o Contacto.`,
+    buttons: ["Presentación","Desarrollador Web","Desarrollador Móvil","Condiciones","Certificación","Contacto"],
+    keywords: {
+      presentation: ["presentación","solicode","acerca"],
+      web: ["web","desarrollador web"],
+      mobile: ["móvil","desarrollador móvil","mobile"],
+      conditions: ["condición","condiciones","acceso","admisión"],
+      certification: ["certificación","diploma","certificado"],
+      contact: ["contacto","dirección","correo"]
+    },
+    responses: {
+      presentation: `<b>Presentación de SOLICODE Tánger</b><br><br>SOLICODE es un centro de formación solidario e inclusivo, abierto a jóvenes motivados interesados en el Desarrollo Web y Móvil.<br><br>La formación se centra en:<ul><li>Técnicas digitales</li><li>Habilidades blandas</li><li>Emprendimiento</li><li>Empleabilidad</li></ul>`,
+      web: `<b>Itinerario Desarrollador Web</b><br><br>Esta formación cubre:<ul><li>HTML / CSS</li><li>JavaScript</li><li>PHP y MySQL</li><li>Frameworks modernos</li><li>Desarrollo de aplicaciones web</li></ul>`,
+      mobile: `<b>Itinerario Desarrollador Móvil</b><br><br>Esta formación permite crear aplicaciones móviles con:<ul><li>Flutter</li><li>Dart</li><li>Firebase</li><li>UI/UX Móvil</li><li>Publicación de aplicaciones</li></ul>`,
+      conditions: `<b>Condiciones de Acceso</b><br><br>Para ingresar a SOLICODE:<ul><li>Estar motivado</li><li>Tener un nivel académico aceptable</li><li>Superar las pruebas de selección</li><li>Tener interés por lo digital</li></ul>`,
+      certification: `<b>Certificación</b><br><br>Al finalizar la formación, los aprendices obtienen una certificación profesional que valora sus competencias técnicas y profesionales.`,
+      contact: `<b>Contacto SOLICODE Tánger</b><br><br>🌐 Sitio web: www.solicode.co<br>📍 Ciudad: Tánger<br>📧 Correo: contact@solicode.co`
+    }
+  },
+
+  /* ──────────── DARIJA ──────────── */
+  da: {
+    subtitle: "مساعد ذكي للتكوين المهني",
+    placeholder: "سول سوالك هنا...",
+    send: "يرسل",
+    rtl: true,
+    welcome: `أهلن 👋<br><br>أنا شات بوت ديال <b>SOLICODE طنجة</b>.<br><br>تقدر تسولني على:<ul><li>تعريف بـ SOLICODE</li><li>مطور ويب</li><li>مطور موبايل</li><li>شروط القبول</li><li>الشهادة</li><li>تواصل</li></ul>`,
+    unknown: `عفاك سمح 😅<br><br>ما فهمتش السؤال.<br>جرب تكتب: تعريف، ويب، موبايل، شروط، شهادة أو تواصل.`,
+    buttons: ["تعريف","مطور ويب","مطور موبايل","شروط","شهادة","تواصل"],
+    keywords: {
+      presentation: ["تعريف","solicode","سوليكود"],
+      web: ["ويب","web","مطور ويب"],
+      mobile: ["موبايل","mobile","مطور موبايل"],
+      conditions: ["شروط","قبول","كيفاش"],
+      certification: ["شهادة","ديبلوم","certification"],
+      contact: ["تواصل","عنوان","contact"]
+    },
+    responses: {
+      presentation: `<b>تعريف بـ SOLICODE طنجة</b><br><br>SOLICODE هو مركز تكوين تضامني ومنفتح، خاص للشباب المتحمسين اللي عاجبهم تطوير ويب وموبايل.<br><br>التكوين كيركز على:<ul><li>المهارات التقنية</li><li>المهارات الناعمة</li><li>ريادة الأعمال</li><li>الإدماج المهني</li></ul>`,
+      web: `<b>مسار مطور ويب</b><br><br>هاد التكوين كيعلمك:<ul><li>HTML / CSS</li><li>JavaScript</li><li>PHP و MySQL</li><li>Frameworks ديال دابا</li><li>تطوير مواقع وتطبيقات</li></ul>`,
+      mobile: `<b>مسار مطور موبايل</b><br><br>هاد التكوين كيمكنك تصنع تطبيقات موبايل بـ:<ul><li>Flutter</li><li>Dart</li><li>Firebase</li><li>UI/UX موبايل</li><li>نشر التطبيقات</li></ul>`,
+      conditions: `<b>شروط القبول</b><br><br>باش تدخل SOLICODE:<ul><li>تكون عندك حماس</li><li>مستوى دراسي معقول</li><li>تنجح في اختبارات الانتقاء</li><li>تكون مهتم بالرقمي</li></ul>`,
+      certification: `<b>الشهادة</b><br><br>في آخر التكوين، المتدربين كيحصلو على شهادة مهنية كتثمن كفاءاتهم التقنية والمهنية.`,
+      contact: `<b>تواصل مع SOLICODE طنجة</b><br><br>🌐 الموقع: www.solicode.co<br>📍 المدينة: طنجة<br>📧 الإيميل: contact@solicode.co`
+    }
+  },
+
+  /* ──────────── TAMAZIGHT — TIFINAGH ──────────── */
+  tz: {
+    subtitle: "ⴰⵎⴰⵡⴰⵙ ⴰⵎⵓⵙⵙⵓ ⵏ ⵜⵙⴻⵍⴽⵉⵎⵜ",
+    placeholder: "ⴰⵔⵔ ⵉⵙⵓⵎⵔ ⵢⵏⵏⴽ...",
+    send: "ⴰⵣⵏ",
+    script: "tifinagh",
+    welcome: `ⴰⵣⵓⵍ 👋<br><br>ⵏⴽⴽ ⵍⵍⵉⵖ ⵛⴰⵜⴱⵓⵜ ⵏ <b>SOLICODE ⵟⴰⵏⵊⴰ</b>.<br><br>ⵜⵣⵎⵔⴷ ⴰⴷ ⵜⵙⵓⵎⵔⴷ ⵖⴼ:<ul><li>ⴰⵎⵔⵏⵓ</li><li>ⴰⵎⵙⴽⴰⵔ ⵏ ⵡⵉⴱ</li><li>ⴰⵎⵙⴽⴰⵔ ⵏ ⵎⵓⴱⴰⵢⵍ</li><li>ⵉⵣⵔⴼⴰⵏ</li><li>ⴰⵎⵣⵔⵓⵢ</li><li>ⴰⵎⵢⴰⵡⴰⵙ</li></ul>`,
+    unknown: `ⵓⵔ ⴼⵀⵉⵎⵖ 😅<br><br>ⵔⵔ ⵅⵟ: ⴰⵎⵔⵏⵓ, ⵡⵉⴱ, ⵎⵓⴱⴰⵢⵍ, ⵉⵣⵔⴼⴰⵏ, ⴰⵎⵣⵔⵓⵢ, ⴰⵎⵢⴰⵡⴰⵙ.`,
+    buttons: ["ⴰⵎⵔⵏⵓ","ⵡⵉⴱ","ⵎⵓⴱⴰⵢⵍ","ⵉⵣⵔⴼⴰⵏ","ⴰⵎⵣⵔⵓⵢ","ⴰⵎⵢⴰⵡⴰⵙ"],
+    keywords: {
+      presentation: ["ⴰⵎⵔⵏⵓ","solicode","ⵙⵓⵍⵉⴽⵓⴷ"],
+      web: ["ⵡⵉⴱ","web","ⴰⵎⵙⴽⴰⵔ ⵏ ⵡⵉⴱ"],
+      mobile: ["ⵎⵓⴱⴰⵢⵍ","mobile"],
+      conditions: ["ⵉⵣⵔⴼⴰⵏ","ⵉⵎⵙⵎⴰⴷⵏ"],
+      certification: ["ⴰⵎⵣⵔⵓⵢ","ⴷⵉⴱⵍⵓⵎ"],
+      contact: ["ⴰⵎⵢⴰⵡⴰⵙ","contact"]
+    },
+    responses: {
+      presentation: `<b>ⴰⵎⵔⵏⵓ ⵏ SOLICODE ⵟⴰⵏⵊⴰ</b><br><br>SOLICODE ⴷ ⴰⵙⴳⵎⵉ ⴰⵎⵓⵜⵜⵉⵢ, ⵉⵙⵜⴰⵢ ⵉⵎⵣⵉⵔⵓⵏ ⵉⵍⵍⴰ ⵓⵎⵏⵉⴷ ⵏⵏⵙⵏ.<br><br>ⴰⵙⴳⵎⵉ ⵉⵜⵜⵓⵙⵏⵎⵇⵇⵙ ⵖⴼ:<ul><li>ⵜⵉⵔⵔⴰ ⵜⵉⵜⴽⵏⵉⵙⵉⵏ</li><li>ⵉⵣⵎⴰⵣ ⵉⵎⵓⵙⵙⵓⵏ</li><li>ⵜⴰⵏⴽⵔⴰ ⵏ ⵜⵙⴻⵍⴽⵉⵎⵜ</li><li>ⴰⵙⵡⵓⵔⵉ</li></ul>`,
+      web: `<b>ⴰⵎⵙⴽⴰⵔ ⵏ ⵡⵉⴱ</b><br><br>ⴰⵙⴳⵎⵉ ⴰⴷ ⵉⵜⵜⴰⵍⵍⴰⵙ:<ul><li>HTML / CSS</li><li>JavaScript</li><li>PHP & MySQL</li><li>ⵉⴼⵔⴰⵎⵡⵓⵔⴽⵏ ⵉⵎⴰⵢⵏⵓⵜⵏ</li><li>ⵜⴰⵙⵏⵙⵉⵜ ⵏ ⵡⵉⴱ</li></ul>`,
+      mobile: `<b>ⴰⵎⵙⴽⴰⵔ ⵏ ⵎⵓⴱⴰⵢⵍ</b><br><br>ⵜⵣⵎⵔⴷ ⴰⴷ ⵜⵙⵏⴼⵍⵉⴷ ⵜⵉⵎⵔⵙⵉⵡⵉⵏ ⵙ:<ul><li>Flutter</li><li>Dart</li><li>Firebase</li><li>UI/UX ⵏ ⵎⵓⴱⴰⵢⵍ</li><li>ⴰⵙⵖⵣⴼ ⵏ ⵜⵉⵎⵔⵙⵉⵡⵉⵏ</li></ul>`,
+      conditions: `<b>ⵉⵣⵔⴼⴰⵏ ⵏ ⵓⵙⵙⵉⵜⴳ</b><br><br>ⴱⴰⵛ ⴰⴷ ⵜⴽⴽⴷ SOLICODE:<ul><li>ⵙⵎⵓⵏ ⵉⵜⵜⵡⵉⵙⵙ</li><li>ⴰⵙⵉⵡⴹ ⴰⵏⴳⵔⴰⵡⴰⵏ</li><li>ⵜⵓⵜⵓ ⵉⵙⵙⵓⵔⴰⵢⵏ</li><li>ⴰⵎⵏⵉⴷ ⵏ ⵓⴷⵉⵊⵉⵜⴰⵍ</li></ul>`,
+      certification: `<b>ⴰⵎⵣⵔⵓⵢ</b><br><br>ⴳ ⵜⴰⵎⵥⵉⵡⵏⵜ ⵏ ⵓⵙⴳⵎⵉ, ⵉⵎⵙⵍⵎⴰⴷⵏ ⵇⵇⵉⵎⵏ ⴰⵎⵣⵔⵓⵢ ⴰⵎⵓⵙⵙⵓ ⵉⴷⵓⵙⵏ ⵉⵣⵎⴰⵣⵏ ⵏⵙⵏ.`,
+      contact: `<b>ⴰⵎⵢⴰⵡⴰⵙ - SOLICODE ⵟⴰⵏⵊⴰ</b><br><br>🌐 ⴰⵙⴰⵡⴰⵍ: www.solicode.co<br>📍 ⵜⵉⴷⴷⵉⵜ: ⵟⴰⵏⵊⴰ<br>📧 ⵉⵎⴰⵢⵍ: contact@solicode.co`
+    },
+
+    /* ── LATIN variant ── */
+    latin: {
+      subtitle: "Amskas n tsɣunt n tselkimt",
+      placeholder: "Aru isumer ynnek...",
+      send: "Azn",
+      welcome: `Azul 👋<br><br>Nekk lligh chatbot n <b>SOLICODE Tanja</b>.<br><br>Tzmerd ad tesumred ɣef:<ul><li>Amrnu</li><li>Amskar n web</li><li>Amskar n mobile</li><li>Izrfan</li><li>Amzruy</li><li>Amyawas</li></ul>`,
+      unknown: `Ur fehmeɣ 😅<br><br>Rr ɣ: Amrnu, Web, Mobile, Izrfan, Amzruy, Amyawas.`,
+      buttons: ["Amrnu","Web","Mobile","Izrfan","Amzruy","Amyawas"],
+      responses: {
+        presentation: `<b>Amrnu n SOLICODE Tanja</b><br><br>SOLICODE d asgmi amuttiɣ, istay imzirun yella umnid nnsn.<br><br>Asgmi ittussnmqqas ɣef:<ul><li>Tirra titknisin</li><li>Izmaz imussunen</li><li>Tankra n tselkimt</li><li>Aswuri</li></ul>`,
+        web: `<b>Amskar n Web</b><br><br>Asgmi ad ittalas:<ul><li>HTML / CSS</li><li>JavaScript</li><li>PHP & MySQL</li><li>Frameworks imaynutn</li><li>Tasnsit n Web</li></ul>`,
+        mobile: `<b>Amskar n Mobile</b><br><br>Tzmerd ad tsnflid timsrsiwin s:<ul><li>Flutter</li><li>Dart</li><li>Firebase</li><li>UI/UX n Mobile</li><li>Asɣzf n timsrsiwin</li></ul>`,
+        conditions: `<b>Izrfan n ussitig</b><br><br>Baš ad tkked SOLICODE:<ul><li>Ssmun ittwiiss</li><li>Asiwd anghrawan</li><li>Tutu issurayen</li><li>Amnid n udiɣital</li></ul>`,
+        certification: `<b>Amzruy</b><br><br>Ɣ tameẓiwnt n usgmi, imselmaden qqimen amzruy amussun idussen izmaz nnsn.`,
+        contact: `<b>Amyawas - SOLICODE Tanja</b><br><br>🌐 Asawal: www.solicode.co<br>📍 Tiddit: Tanja<br>📧 Imayl: contact@solicode.co`
+      }
+    }
+  }
+};
+
+// ═══════════════════════════════════════════════
+//  STATE
+// ═══════════════════════════════════════════════
+let currentLang = "fr";
+let currentScript = "tifinagh"; // tifinagh | latin
+
+// ═══════════════════════════════════════════════
+//  HELPERS
+// ═══════════════════════════════════════════════
+function getLang() {
+  if (currentLang === "tz" && currentScript === "latin") {
+    // Merge base tz with latin overrides
+    return Object.assign({}, T.tz, T.tz.latin);
+  }
+  return T[currentLang];
+}
+
+function setLang(lang) {
+  currentLang = lang;
+  document.querySelectorAll(".lang-btn").forEach(b => b.classList.remove("active"));
+  document.querySelectorAll(".lang-btn").forEach(b => {
+    if (b.textContent.includes(langLabel(lang))) b.classList.add("active");
+  });
+  // Show/hide script toggle
+  document.getElementById("scriptToggle").style.display = lang === "tz" ? "flex" : "none";
+  applyUI();
+  showWelcome();
+}
+
+function langLabel(lang) {
+  return { fr:"Français", en:"English", es:"Español", da:"Darija", tz:"ⴰⵎⴰⵣⵉⵖ" }[lang];
+}
+
+function setScript(script) {
+  currentScript = script;
+  document.getElementById("btnTifinagh").classList.toggle("active", script === "tifinagh");
+  document.getElementById("btnLatin").classList.toggle("active", script === "latin");
+  applyUI();
+  showWelcome();
+}
+
+function applyUI() {
+  const L = getLang();
+  // Subtitle
+  document.getElementById("headerSubtitle").innerHTML = L.subtitle;
+  // Input placeholder & button
+  const input = document.getElementById("userInput");
+  input.placeholder = L.placeholder;
+  document.getElementById("sendBtn").textContent = L.send;
+  // RTL
+  const rtl = !!L.rtl;
+  document.documentElement.dir = rtl ? "rtl" : "ltr";
+  input.style.textAlign = rtl ? "right" : "left";
+  // Quick buttons
+  const qb = document.getElementById("quickButtons");
+  qb.innerHTML = "";
+  L.buttons.forEach(label => {
+    const btn = document.createElement("button");
+    btn.textContent = label;
+    btn.onclick = () => quickQuestion(label);
+    qb.appendChild(btn);
+  });
+  // Tifinagh font class on chatbox
+  document.getElementById("chatBox").className =
+    (currentLang === "tz" && currentScript === "tifinagh") ? "chat-box tifinagh" : "chat-box";
+}
+
+function showWelcome() {
+  const L = getLang();
+  const chatBox = document.getElementById("chatBox");
+  chatBox.innerHTML = "";
+  addMessage(L.welcome, "bot");
+}
+
+// ═══════════════════════════════════════════════
+//  CHAT LOGIC
+// ═══════════════════════════════════════════════
+const chatBox = document.getElementById("chatBox");
+
+function addMessage(text, sender) {
+  const msg = document.createElement("div");
+  msg.classList.add("message", sender);
+  if (getLang().rtl && sender === "bot") msg.classList.add("rtl-text");
+  msg.innerHTML = text;
+  chatBox.appendChild(msg);
+  chatBox.scrollTop = chatBox.scrollHeight;
+}
+
+function quickQuestion(question) {
+  document.getElementById("userInput").value = question;
+  sendMessage();
+}
+
+function sendMessage() {
+  const input = document.getElementById("userInput");
+  const text = input.value.trim();
+  if (text === "") return;
+  addMessage(text, "user");
+
+  const L = getLang();
+  const msg = text.toLowerCase();
+  let response = "";
+
+  // Match keywords
+  const kw = T[currentLang].keywords || (currentLang === "tz" ? T.tz.keywords : {});
+  let matched = false;
+
+  for (const [key, words] of Object.entries(kw)) {
+    if (words.some(w => msg.includes(w.toLowerCase()))) {
+      response = L.responses[key];
+      matched = true;
+      break;
+    }
+  }
+
+  if (!matched) response = L.unknown;
+
+  setTimeout(() => addMessage(response, "bot"), 500);
+  input.value = "";
+}
+
+// Enter key
+document.getElementById("userInput").addEventListener("keypress", e => {
+  if (e.key === "Enter") sendMessage();
+});
+
+// ═══════════════════════════════════════════════
+//  INIT
+// ═══════════════════════════════════════════════
+applyUI();
+showWelcome();
+
+</script>
+</body>
+</html>
